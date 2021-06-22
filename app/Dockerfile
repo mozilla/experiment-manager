@@ -48,6 +48,9 @@ COPY ./yarn.lock /app/yarn.lock
 COPY ./experimenter/legacy-ui/core/package.json /app/experimenter/legacy-ui/core/package.json
 RUN yarn install --frozen-lockfile
 
+COPY ./experimenter/reporting-ui/package.json /app/experimenter/reporting-ui/package.json
+RUN yarn install --frozen-lockfile
+
 COPY ./experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.json
 RUN yarn install --frozen-lockfile
 
@@ -67,7 +70,7 @@ COPY ./experimenter/legacy-ui/ /app/experimenter/legacy-ui/
 COPY ./experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/core build
 RUN yarn workspace @experimenter/nimbus-ui build
-
+RUN yarn workspace @experimenter/reporting build
 
 # Deploy image
 FROM python:3.9-slim AS deploy
