@@ -12,12 +12,12 @@ class ReportLogConstants(object):
         COMPLETE = "Complete"
 
     class ExperimentType(models.TextChoices):
-        NORMANDY_PREF = "Normandy Pref"
-        NORMANDY_ADDON = "Normandy Addon"
-        NORMANDY_ROLLOUT = "Normandy Rollout"
-        NIMBUS_DESKTOP = "Nimbus Desktop"
-        NIMBUS_FENIX = "Nimbus Fenix"
-        NIMBUS_IOS = "Nimbus IOS"
+        NORMANDY_PREF = "Normandy-Pref"
+        NORMANDY_ADDON = "Normandy-Addon"
+        NORMANDY_ROLLOUT = "Normandy-Rollout"
+        NIMBUS_DESKTOP = "Nimbus-Firefox-Desktop"
+        NIMBUS_FENIX = "Nimbus-Fenix"
+        NIMBUS_IOS = "Nimbus-Ios"
 
     class Event(models.TextChoices):
         CREATE = "Create"
@@ -56,3 +56,18 @@ class ReportLogConstants(object):
             "Experiment Design Issue",
         ],
     }
+
+    REPORT_HEADINGS = [
+        "name",
+        "url",
+        "type",
+        "projects",
+        "time_in_draft",
+        "time_in_preview",
+        "time_in_review",
+        "time_in_ship",
+        "time_in_accepted",
+        "time_in_live",
+    ]
+
+    EXCLUDED_PROJECTS = ["experiment tools"]
