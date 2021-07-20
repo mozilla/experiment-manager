@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useState } from "react";
 import { useOutcomes } from "../../../hooks";
 import { OutcomesList } from "../../../lib/types";
 import {
+  BRANCH_COMPARISON,
   GROUP,
   METRICS_TIPS,
   METRIC_TYPE,
@@ -55,71 +56,99 @@ const TableResults = ({
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const overallResults = results?.overall!;
 
-  return (
-    <table className="table-visualization-center" data-testid="table-results">
-      <thead>
-        <tr>
-          <th scope="col" className="border-bottom-0 bg-light" />
-          {resultsMetricsList.map((metric, index) => {
-            const badgeClass = `badge ${metric.type?.badge}`;
-            const outcomeDescription =
-              results.metadata?.metrics[metric.value]?.description ||
-              metric.tooltip;
+  // show relative comparison by default
+  const [branchComparison, setBranchComparison] = useState(
+    BRANCH_COMPARISON.UPLIFT,
+  );
+  const branchComparisonIsRelative =
+    branchComparison === BRANCH_COMPARISON.UPLIFT;
+  const toggleBranchComparison = () => {
+    if (branchComparisonIsRelative) {
+      setBranchComparison(BRANCH_COMPARISON.ABSOLUTE);
+    } else {
+      setBranchComparison(BRANCH_COMPARISON.UPLIFT);
+    }
+  };
+  const toggleBranchComparisonText = branchComparisonIsRelative
+    ? "absolute"
+    : "relative";
 
+  return (
+    <>
+      <div className="d-flex justify-content-between mb-3">
+        <h2 className="h5">Results Summary</h2>
+        <button
+          data-testid="toggle-branch-comparison"
+          className="btn btn-secondary"
+          onClick={toggleBranchComparison}
+        >
+          <small>See {toggleBranchComparisonText} comparison </small>
+        </button>
+      </div>
+      <table className="table-visualization-center" data-testid="table-results">
+        <thead>
+          <tr>
+            <th scope="col" className="border-bottom-0 bg-light" />
+            {resultsMetricsList.map((metric, index) => {
+              const badgeClass = `badge ${metric.type?.badge}`;
+              const outcomeDescription =
+                results.metadata?.metrics[metric.value]?.description ||
+                metric.tooltip;
+
+              return (
+                <th
+                  key={`${metric.type}-${index}`}
+                  scope="col"
+                  className="border-bottom-0 align-middle bg-light"
+                >
+                  <h3 className="h6 mb-0" data-tip data-for={metric.value}>
+                    {metric.name}
+                  </h3>
+                  <TooltipWithMarkdown
+                    tooltipId={metric.value}
+                    markdown={outcomeDescription}
+                  />
+                  {metric.type && (
+                    <span className={badgeClass} data-tip={metric.type.tooltip}>
+                      {metric.type.label}
+                    </span>
+                  )}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {sortedBranches.map((branch) => {
             return (
-              <th
-                key={`${metric.type}-${index}`}
-                scope="col"
-                className="border-bottom-0 align-middle bg-light"
-              >
-                <h3 className="h6 mb-0" data-tip data-for={metric.value}>
-                  {metric.name}
-                </h3>
-                <TooltipWithMarkdown
-                  tooltipId={metric.value}
-                  markdown={outcomeDescription}
-                />
-                {metric.type && (
-                  <span className={badgeClass} data-tip={metric.type.tooltip}>
-                    {metric.type.label}
-                  </span>
-                )}
-              </th>
+              <tr key={branch}>
+                <th className="align-middle" scope="row">
+                  {branch}
+                </th>
+                {resultsMetricsList.map((metric) => {
+                  const metricKey = metric.value;
+                  const displayType = getTableDisplayType(
+                    metricKey,
+                    TABLE_LABEL.RESULTS,
+                    overallResults[branch]["is_control"],
+                  );
+                  return (
+                    <TableVisualizationRow
+                      key={`${displayType}-${metricKey}`}
+                      metricName={metric.name}
+                      results={overallResults[branch]}
+                      group={metric.group}
+                      tableLabel={TABLE_LABEL.RESULTS}
+                      {...{ metricKey, displayType, branchComparison }}
+                    />
+                  );
+                })}
+              </tr>
             );
           })}
-        </tr>
-      </thead>
-      <tbody>
-        {sortedBranches.map((branch) => {
-          return (
-            <tr key={branch}>
-              <th className="align-middle" scope="row">
-                {branch}
-              </th>
-              {resultsMetricsList.map((metric) => {
-                const metricKey = metric.value;
-                const displayType = getTableDisplayType(
-                  metricKey,
-                  TABLE_LABEL.RESULTS,
-                  overallResults[branch]["is_control"],
-                );
-                return (
-                  <TableVisualizationRow
-                    key={`${displayType}-${metricKey}`}
-                    metricName={metric.name}
-                    results={overallResults[branch]}
-                    group={metric.group}
-                    tableLabel={TABLE_LABEL.RESULTS}
-                    {...{ metricKey }}
-                    {...{ displayType }}
-                  />
-                );
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </>
   );
 };
 
