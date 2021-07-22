@@ -16,6 +16,7 @@ from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
 )
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
@@ -25,6 +26,7 @@ from experimenter.experiments.models import (
     NimbusIsolationGroup,
 )
 from experimenter.experiments.models.nimbus import NimbusChangeLog
+from experimenter.jetstream.tests.factory import JetstreamDataFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
@@ -304,6 +306,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
+
+            if experiment.status == NimbusConstants.Status.COMPLETE:
+                experiment.results_data = JetstreamDataFactory().generate_results_data(
+                    experiment.primary_outcomes
+                )
+                experiment.save()
 
             change = generate_nimbus_changelog(
                 experiment,
