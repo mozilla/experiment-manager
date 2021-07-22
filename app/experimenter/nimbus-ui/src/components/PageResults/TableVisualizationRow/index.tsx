@@ -25,8 +25,8 @@ import { ReactComponent as SignificancePositive } from "./significance-positive.
 // to display given the branch and table type.
 const dataTypeMapping = {
   [TABLE_LABEL.RESULTS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.ABSOLUTE,
+    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.UPLIFT,
+    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.UPLIFT,
   },
   [TABLE_LABEL.HIGHLIGHTS]: {
     [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,

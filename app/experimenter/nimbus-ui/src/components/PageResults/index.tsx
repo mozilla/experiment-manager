@@ -85,7 +85,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
-              <h2 className="h5 mb-3">Results Summary</h2>
               {analysis?.overall && (
                 <TableResults
                   {...{ experiment, sortedBranches }}

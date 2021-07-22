@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { fireEvent } from "@testing-library/dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableResults from ".";
@@ -36,16 +37,51 @@ describe("TableResults", () => {
     });
   });
 
-  it("renders the expected variant and user count", () => {
+  it("with relative comparison, renders the expected variant, comparison, and user count", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
 
+    expect(screen.getByText("See absolute comparison")).toBeInTheDocument();
+    expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
+      2,
+    );
     expect(screen.getByText("control")).toBeInTheDocument();
     expect(screen.getByText("treatment")).toBeInTheDocument();
-    expect(screen.getByText("198")).toBeInTheDocument();
+  });
+
+  it("with absolute comparison, renders the expected variant, comparison, and user count", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults {...{ experiment, results, sortedBranches }} />
+      </RouterSlugProvider>,
+    );
+
+    fireEvent.click(screen.getByText("See absolute comparison"));
+    await screen.findByText("198");
+    expect(screen.getByText("200")).toBeInTheDocument();
+    expect(
+      screen.getByText("2.4% to 8.4% (baseline)", { exact: false }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("control")).toBeInTheDocument();
+    expect(screen.getByText("treatment")).toBeInTheDocument();
+  });
+
+  it("toggles between absolute and relative comparisons", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults {...{ experiment, results, sortedBranches }} />
+      </RouterSlugProvider>,
+    );
+
+    fireEvent.click(screen.getByText("See absolute comparison"));
+    await screen.findByText("45%");
+    fireEvent.click(screen.getByText("See relative comparison"));
+    expect(screen.getAllByText("-0.46 to 0.51", { exact: false })).toHaveLength(
+      2,
+    );
   });
 
   it("renders correctly labelled result significance", () => {
